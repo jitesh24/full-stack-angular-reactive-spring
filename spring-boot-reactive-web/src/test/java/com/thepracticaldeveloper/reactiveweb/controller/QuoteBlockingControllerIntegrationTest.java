@@ -90,4 +90,48 @@ public class QuoteBlockingControllerIntegrationTest {
                 Lists.newArrayList(new Quote("1", "mock-book", "Quote 1"),
                         new Quote("2", "mock-book", "Quote 2")));
     }
+
+    @Test
+    public void delete_A_Quote_with_validId(){
+        //given
+        given(quoteMongoBlockingRepository.findAll()).willReturn(quoteList);
+
+        //when
+        ResponseEntity<Void> responseEntity = restTemplate.exchange(
+            serverBaseUrl + "/delete-quote-reactive/1",
+            HttpMethod.DELETE, null, new ParameterizedTypeReference<Void>() {
+             });
+
+        //then
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(quoteMongoBlockingRepository.findAll()).size().isEqualTo(3);
+        assertThat(quoteMongoBlockingRepository.findAll()).isEqualTo(
+            Lists.newArrayList(new Quote("2", "mock-book", "Quote 2"),
+            new Quote("3", "mock-book", "Quote 3"),
+            new Quote("4", "mock-book", "Quote 4")));
+
+    }
+
+    @Test
+    public void delete_A_Quote_with_InValidId(){
+        //given
+        given(quoteMongoBlockingRepository.findAll()).willReturn(quoteList);
+
+        //when
+        ResponseEntity<Void> responseEntity = restTemplate.exchange(
+            serverBaseUrl + "/delete-quote-reactive/4",
+            HttpMethod.DELETE, null, new ParameterizedTypeReference<Void>() {
+            });
+
+        //then
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(quoteMongoBlockingRepository.findAll()).isEqualTo(
+            Lists.newArrayList(new Quote("1", "mock-book", "Quote 1"),
+                new Quote("2", "mock-book", "Quote 2"),
+                new Quote("3", "mock-book", "Quote 3"),
+                new Quote("4", "mock-book", "Quote 4")));
+
+    }
+
+
 }

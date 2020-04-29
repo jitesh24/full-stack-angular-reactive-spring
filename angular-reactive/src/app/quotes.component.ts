@@ -46,7 +46,7 @@ export class QuotesComponent {
     this.selectedQuote = quote;
   }
 
-  deleteQuote(): void {
-
+  requestQuoteDelete(quote: Quote): void {
+    this.quoteBlockingService.deleteQuote(quote.id);
   }
 }

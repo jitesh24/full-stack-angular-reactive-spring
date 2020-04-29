@@ -3,6 +3,7 @@ package com.thepracticaldeveloper.reactiveweb.controller;
 import com.thepracticaldeveloper.reactiveweb.configuration.QuijoteDataLoader;
 import com.thepracticaldeveloper.reactiveweb.domain.Quote;
 import com.thepracticaldeveloper.reactiveweb.repository.QuoteMongoReactiveRepository;
+import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,10 +15,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.time.Duration;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 
@@ -95,4 +98,49 @@ public class QuoteReactiveControllerIntegrationTest {
 
     }
 
+    @Test
+    public void delete_A_Quote_with_ValidId(){
+        // given
+        given(quoteMongoReactiveRepository.findAll()).willReturn(quoteFlux);
+
+        //when
+        Mono<Quote> receivedMono = webClient.delete().uri("/delete-quote/1")
+            .accept(MediaType.TEXT_EVENT_STREAM)
+            .exchange().flatMap(response -> response.bodyToMono(Quote.class));
+
+        //then
+        StepVerifier.create(receivedMono)
+            .expectNext(new Quote("1", "mock-book", "Quote 1"))
+            .expectComplete().verify();
+
+        assertThat(quoteMongoReactiveRepository.findAll()).isEqualTo(
+            Lists.newArrayList(
+                new Quote("2", "mock-book", "Quote 2"),
+                new Quote("3", "mock-book", "Quote 3"),
+                new Quote("4", "mock-book", "Quote 4")));
+
+    }
+
+    @Test
+    public void delete_A_Quote_with_InValidId(){
+        // given
+        given(quoteMongoReactiveRepository.findAll()).willReturn(quoteFlux);
+
+        //when
+        Mono<Quote> receivedMono = webClient.delete().uri("/delete-quote/1")
+            .accept(MediaType.TEXT_EVENT_STREAM)
+            .exchange().flatMap(response -> response.bodyToMono(Quote.class));
+
+        //then
+        StepVerifier.create(receivedMono)
+            .expectNext(new Quote("1", "mock-book", "Quote 1"))
+            .expectComplete().verify();
+
+        assertThat(quoteMongoReactiveRepository.findAll()).isEqualTo(
+            Lists.newArrayList(
+                new Quote("2", "mock-book", "Quote 2"),
+                new Quote("3", "mock-book", "Quote 3"),
+                new Quote("4", "mock-book", "Quote 4")));
+
+    }
 }

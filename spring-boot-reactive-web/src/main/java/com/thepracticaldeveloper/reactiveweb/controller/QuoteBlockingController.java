@@ -3,7 +3,9 @@ package com.thepracticaldeveloper.reactiveweb.controller;
 import com.thepracticaldeveloper.reactiveweb.domain.Quote;
 import com.thepracticaldeveloper.reactiveweb.repository.QuoteMongoBlockingRepository;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,5 +31,11 @@ public class QuoteBlockingController {
                                              final @RequestParam(name = "size") int size) throws Exception {
         Thread.sleep(DELAY_PER_ITEM_MS * size);
         return quoteMongoBlockingRepository.retrieveAllQuotesPaged(PageRequest.of(page, size));
+    }
+
+    @DeleteMapping("/delete-quote/{quoteId}")
+    public void deleteQuote(@PathVariable("quoteId") String quoteId){
+        quoteMongoBlockingRepository.findById(quoteId).
+            ifPresent( quote -> quoteMongoBlockingRepository.delete(quote));
     }
 }

@@ -11,6 +11,7 @@ export class QuoteBlockingService {
   quotes: Quote[] = [];
   url: string = 'http://localhost:8080/quotes-blocking';
   urlPaged: string = 'http://localhost:8080/quotes-blocking-paged';
+  deleteUrl: string = 'http://localhost:8080/delete-quote';
 
   constructor(private http: HttpClient) {}
 
@@ -21,6 +22,9 @@ export class QuoteBlockingService {
       url = this.urlPaged + '?page=' + page + '&size=' + size;
     }
     return this.http.get<Array<Quote>>(url);
+  }
+  deleteQuote(id?: number) {
+    return this.http.delete(this.deleteUrl + '/' + id);
   }
 
 }
